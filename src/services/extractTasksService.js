@@ -2,15 +2,19 @@ import Groq from 'groq-sdk';
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const EXTRACTION_PROMPT = `Extract action items from this meeting transcript as JSON only:
-[{ "task": "", "owner": "", "deadline": "", "priority": "high|medium|low" }]
+const EXTRACTION_PROMPT = `Extract action items from this meeting transcript.
+
+Return ONLY valid JSON in exactly this shape, with no other wrapper:
+{ "tasks": [{ "task": "", "owner": "", "deadline": "", "priority": "high|medium|low" }] }
 
 Rules:
+- Always use the key "tasks" for the array, even if there is only one task or zero tasks.
 - Include every action item mentioned or clearly implied, even if owner or deadline is unclear.
 - If no owner is mentioned, use an empty string "" for owner — do not skip the task.
 - If no deadline is mentioned, use an empty string "" for deadline — do not skip the task.
 - If priority isn't stated, infer "medium" as the default.
-- Return valid JSON only, no extra text.`;
+- If there are no action items at all, return { "tasks": [] }.
+- Return valid JSON only, no extra text, no markdown formatting.`;
 
 /**
  * Sends a transcript to the LLM and extracts structured action items.
