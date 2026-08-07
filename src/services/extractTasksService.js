@@ -43,8 +43,6 @@ export const extractTasks = async (transcriptText) => {
  */
 const parseTasksSafely = (rawContent) => {
   let cleaned = rawContent.trim();
-
-  // Strip ```json ... ``` fences if the model added them anyway
   cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
 
   let parsed;
@@ -55,9 +53,22 @@ const parseTasksSafely = (rawContent) => {
     throw new Error('AI returned malformed JSON');
   }
 
-  // Some models wrap arrays in an object like { "tasks": [...] }
+  // Shape 1: already an array
   if (Array.isArray(parsed)) return parsed;
+
+  // Shape 2: { tasks: [...] }
   if (Array.isArray(parsed.tasks)) return parsed.tasks;
 
+  // Shape 3: search one level deep for the first array value in the object
+  // (covers "action_items", "result", or any other key name the model invents)
+  const firstArrayValue = Object.values(parsed).find(v => Array.isArray(v));
+  if (firstArrayValue) return firstArrayValue;
+
+  // Shape 4: a single task object instead of an array — wrap it
+  if (parsed.task && typeof parsed.task === 'string') {
+    return [parsed];
+  }
+
+  console.error('Unrecognized AI response shape:', parsed);
   throw new Error('AI response was not in the expected array format');
 };
