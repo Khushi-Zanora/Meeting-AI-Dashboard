@@ -15,7 +15,7 @@ export const findUserByEmail = (email) => {
 };
 
 // Deliberately excludes password_hash — this is what the frontend/response ever sees
-// export const findUserById = (id) => {
-//   const stmt = db.prepare(`SELECT id, name, email, phone, profile_image, created_at FROM users WHERE id = ?`);
-//   return stmt.get(id);
-// };
+export const findUserById = (id) => {
+  const stmt = db.prepare(`SELECT id, name, email, phone, profile_image, created_at FROM users WHERE id = ?`);
+  return stmt.get(id);
+};
