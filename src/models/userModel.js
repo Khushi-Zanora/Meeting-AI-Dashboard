@@ -9,10 +9,10 @@ export const createUser = (name, email, passwordHash) => {
   return result.lastInsertRowid;
 };
 
-// export const findUserByEmail = (email) => {
-//   const stmt = db.prepare(`SELECT * FROM users WHERE email = ?`);
-//   return stmt.get(email);
-// };
+export const findUserByEmail = (email) => {
+  const stmt = db.prepare(`SELECT * FROM users WHERE email = ?`);
+  return stmt.get(email);
+};
 
 // Deliberately excludes password_hash — this is what the frontend/response ever sees
 // export const findUserById = (id) => {
