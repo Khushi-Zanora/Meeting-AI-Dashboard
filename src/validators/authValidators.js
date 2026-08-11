@@ -18,4 +18,5 @@ export const validateSignupInput = ({ name, email, password, confirmPassword }) 
     errors.push('Passwords do not match');
   }
 
+  return { valid: errors.length === 0, errors };
 };
