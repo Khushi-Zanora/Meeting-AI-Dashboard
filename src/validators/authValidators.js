@@ -20,3 +20,17 @@ export const validateSignupInput = ({ name, email, password, confirmPassword }) 
 
   return { valid: errors.length === 0, errors };
 };
+
+export const validateLoginInput = ({ email, password }) => {
+  const errors = [];
+
+  if (!email || !email.trim()) {
+    errors.push('Email is required');
+  }
+
+  if (!password) {
+    errors.push('Password is required');
+  }
+
+  return { valid: errors.length === 0, errors };
+};
