@@ -3,12 +3,14 @@ import { getAllMeetings } from '../models/meetingModel.js';
 import { TASK_STATUS } from '../constants.js';
 
 export const getTasks = (req, res) => {
+  const userId = req.user.id;
   const { status, priority } = req.query;
-  const tasks = getAllTasks({ status, priority });
+  const tasks = getAllTasks(userId, { status, priority });
   res.json(tasks);
 };
 
 export const updateTask = (req, res) => {
+  const userId = req.user.id;
   const { id } = req.params;
   const { status } = req.body;
 
@@ -18,9 +20,11 @@ export const updateTask = (req, res) => {
     });
   }
 
-  const updated = updateTaskStatus(id, status);
+  const updated = updateTaskStatus(id, userId, status);
 
   if (!updated) {
+    // Same 404 whether the task doesn't exist OR belongs to someone else —
+    // never reveal that a task ID is "real but not yours"
     return res.status(404).json({ error: 'Task not found' });
   }
 
@@ -28,5 +32,6 @@ export const updateTask = (req, res) => {
 };
 
 export const getMeetings = (req, res) => {
-  res.json(getAllMeetings());
+  const userId = req.user.id;
+  res.json(getAllMeetings(userId));
 };

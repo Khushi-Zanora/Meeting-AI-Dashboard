@@ -4,6 +4,7 @@ import { createMeeting } from '../models/meetingModel.js';
 import { createTasksForMeeting } from '../models/taskModel.js';
 
 export const handleUpload = async (req, res) => {
+  const userId = req.user.id;
   const { transcriptText } = req.body;
   const audioFile = req.file;
 
@@ -24,18 +25,29 @@ export const handleUpload = async (req, res) => {
       transcript = transcriptText;
     }
 
-    const meetingId = createMeeting(filename, transcript);
-    const tasks = await extractTasks(transcript);
+    const meetingId = createMeeting(userId, filename, transcript);
+    const rawTasks = await extractTasks(transcript);
 
-    if (tasks.length > 0) {
-      createTasksForMeeting(meetingId, tasks);
+    // Temporary mapping — extractTasksService still returns the pre-Stage-8 shape.
+    // Stage 8 will update the AI service itself to emit { title, description, assignee, ... }
+    // directly, and this mapping step will be removed.
+    const mappedTasks = rawTasks.map((t) => ({
+      title: t.task,
+      description: null,
+      assignee: t.owner,
+      deadline: t.deadline,
+      priority: t.priority
+    }));
+
+    if (mappedTasks.length > 0) {
+      createTasksForMeeting(userId, meetingId, mappedTasks);
     }
 
     return res.status(201).json({
       message: 'Meeting processed successfully',
       meetingId,
-      tasksExtracted: tasks.length,
-      tasks
+      tasksExtracted: mappedTasks.length,
+      tasks: mappedTasks
     });
 
   } catch (err) {
