@@ -1,24 +1,23 @@
 import db from '../config/db.js';
 
-export const createTasksForMeeting = (meetingId, tasks) => {
+export const createTasksForMeeting = (userId, meetingId, tasks) => {
   const insert = db.prepare(`
-    INSERT INTO tasks (meeting_id, task, owner, deadline, priority)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO tasks (user_id, meeting_id, title, description, assignee, deadline, priority)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
 
-  // Wrap in a transaction — either all tasks save, or none do
   const insertMany = db.transaction((tasks) => {
     for (const t of tasks) {
-      insert.run(meetingId, t.task, t.owner || '', t.deadline || '', t.priority || 'medium');
+      insert.run(userId, meetingId, t.title, t.description || null, t.assignee || '', t.deadline || '', t.priority || 'medium');
     }
   });
 
   insertMany(tasks);
 };
 
-export const getAllTasks = ({ status, priority } = {}) => {
-  let query = 'SELECT * FROM tasks WHERE 1=1';
-  const params = [];
+export const getAllTasks = (userId, { status, priority } = {}) => {
+  let query = 'SELECT * FROM tasks WHERE user_id = ?';
+  const params = [userId];
 
   if (status) {
     query += ' AND status = ?';
@@ -35,8 +34,13 @@ export const getAllTasks = ({ status, priority } = {}) => {
   return stmt.all(...params);
 };
 
-export const updateTaskStatus = (id, status) => {
-  const stmt = db.prepare(`UPDATE tasks SET status = ? WHERE id = ?`);
-  const result = stmt.run(status, id);
-  return result.changes > 0; // true only if a row actually existed and changed
+export const updateTaskStatus = (id, userId, status) => {
+  const completedAt = status === 'done' ? new Date().toISOString() : null;
+  const stmt = db.prepare(`
+    UPDATE tasks
+    SET status = ?, completed_at = ?
+    WHERE id = ? AND user_id = ?
+  `);
+  const result = stmt.run(status, completedAt, id, userId);
+  return result.changes > 0;
 };
