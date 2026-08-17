@@ -1,11 +1,11 @@
 import db from '../config/db.js';
 
-export const createMeeting = (userId, filename, transcript) => {
+export const createMeeting = (userId, audioPath, transcript) => {
   const stmt = db.prepare(`
-    INSERT INTO meetings (user_id, filename, transcript)
-    VALUES (?, ?, ?)
+    INSERT INTO meetings (user_id, audio_path, transcript, processing_status)
+    VALUES (?, ?, ?, 'completed')
   `);
-  const result = stmt.run(userId, filename, transcript);
+  const result = stmt.run(userId, audioPath, transcript);
   return result.lastInsertRowid;
 };
 
