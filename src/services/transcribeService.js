@@ -11,7 +11,7 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 export const transcribeAudio = async (filePath) => {
   const transcription = await groq.audio.transcriptions.create({
     file: fs.createReadStream(filePath),
-    model: 'whisper-large-v3-turbo',
+    model: process.env.GROQ_WHISPER_MODEL,
     response_format: 'text'
   });
 

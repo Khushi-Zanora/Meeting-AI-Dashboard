@@ -23,7 +23,7 @@ Rules:
  */
 export const extractTasks = async (transcriptText) => {
   const response = await groq.chat.completions.create({
-    model: 'openai/gpt-oss-120b',
+    model: process.env.GROQ_LLM_MODEL,
     messages: [
       { role: 'system', content: EXTRACTION_PROMPT },
       { role: 'user', content: transcriptText }
