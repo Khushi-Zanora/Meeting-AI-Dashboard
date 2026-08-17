@@ -16,16 +16,16 @@ export const handleUpload = async (req, res) => {
 
   try {
     let transcript;
-    let filename = null;
+    let audioPath = null;
 
     if (audioFile) {
-      filename = audioFile.filename;
+      audioPath = audioFile.filename;
       transcript = await transcribeAudio(audioFile.path);
     } else {
       transcript = transcriptText;
     }
 
-    const meetingId = createMeeting(userId, filename, transcript);
+    const meetingId = createMeeting(userId, audioPath, transcript);
     const rawTasks = await extractTasks(transcript);
 
     // Temporary mapping — extractTasksService still returns the pre-Stage-8 shape.
