@@ -1,5 +1,5 @@
 import { transcribeAudio } from '../services/transcribeService.js';
-import { extractTasks } from '../services/extractTasksService.js';
+import { extractMeetingData } from '../services/aiService.js';
 import { createMeeting } from '../models/meetingModel.js';
 import { createTasksForMeeting } from '../models/taskModel.js';
 
@@ -23,25 +23,26 @@ export const handleUpload = async (req, res) => {
       transcript = transcriptText;
     }
 
+    const { summary, keyPoints, decisions, actionItems } = await extractMeetingData(transcript);
+
     const { meetingId, meetingCode } = createMeeting(userId, {
-      audioPath, transcript, title, date, participants, description
+      audioPath, transcript, title, date, participants, description,
+      summary, keyPoints, decisions
     });
 
-    const rawTasks = await extractTasks(transcript);
-    const mappedTasks = rawTasks.map((t) => ({
-      title: t.task, description: null, assignee: t.owner, deadline: t.deadline, priority: t.priority
-    }));
-
-    if (mappedTasks.length > 0) {
-      createTasksForMeeting(userId, meetingId, mappedTasks);
+    if (actionItems.length > 0) {
+      createTasksForMeeting(userId, meetingId, actionItems); // no mapping needed — shapes already match
     }
 
     return res.status(201).json({
       message: 'Meeting processed successfully',
       meetingId,
       meetingCode,
-      tasksExtracted: mappedTasks.length,
-      tasks: mappedTasks
+      summary,
+      keyPoints,
+      decisions,
+      tasksExtracted: actionItems.length,
+      tasks: actionItems
     });
 
   } catch (err) {
