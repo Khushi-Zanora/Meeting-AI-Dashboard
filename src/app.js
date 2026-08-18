@@ -6,6 +6,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import meetingRoutes from './routes/meetingRoutes.js';
+import noteRoutes from './routes/noteRoutes.js';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'Server i
 
 app.use('/api/auth', authRoutes);
 app.use('/api/meetings', authenticate, meetingRoutes);
+app.use('/api/notes', authenticate, noteRoutes);
 app.use('/api/upload', authenticate, uploadRoutes);
 app.use('/api', authenticate, taskRoutes);
 
