@@ -51,11 +51,12 @@ export const getAllMeetings = (userId, { search, archived } = {}) => {
   }
 
   query += ' ORDER BY created_at DESC';
-  return db.prepare(query).all(...params);
+  return db.prepare(query).all(...params).map(parseMeetingRow);
 };
 
 export const getMeetingById = (id, userId) => {
-  return db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(id, userId);
+  const meeting = db.prepare(`SELECT * FROM meetings WHERE id = ? AND user_id = ?`).get(id, userId);
+  return parseMeetingRow(meeting);
 };
 
 export const updateMeeting = (id, userId, fields) => {
@@ -95,4 +96,13 @@ export const restoreMeeting = (id, userId) => {
     UPDATE meetings SET archived_at = NULL
     WHERE id = ? AND user_id = ? AND archived_at IS NOT NULL
   `).run(id, userId).changes > 0;
+};
+
+const parseMeetingRow = (meeting) => {
+  if (!meeting) return meeting;
+  return {
+    ...meeting,
+    key_points: meeting.key_points ? JSON.parse(meeting.key_points) : [],
+    decisions: meeting.decisions ? JSON.parse(meeting.decisions) : []
+  };
 };
