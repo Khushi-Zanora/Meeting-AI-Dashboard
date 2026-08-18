@@ -9,12 +9,12 @@ const generateMeetingCode = () => {
   return `MTG-${year}-${nextNumber}`;
 };
 
-export const createMeeting = (userId, { audioPath, transcript, title, date, participants, description }) => {
+export const createMeeting = (userId, { audioPath, transcript, title, date, participants, description, summary, keyPoints, decisions }) => {
   const meetingCode = generateMeetingCode();
 
   const stmt = db.prepare(`
-    INSERT INTO meetings (user_id, meeting_code, title, date, participants, description, audio_path, transcript, processing_status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'completed')
+    INSERT INTO meetings (user_id, meeting_code, title, date, participants, description, audio_path, transcript, summary, key_points, decisions, processing_status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'completed')
   `);
 
   const result = stmt.run(
@@ -25,7 +25,10 @@ export const createMeeting = (userId, { audioPath, transcript, title, date, part
     participants || null,
     description || null,
     audioPath,
-    transcript
+    transcript,
+    summary || null,
+    JSON.stringify(keyPoints || []),
+    JSON.stringify(decisions || [])
   );
 
   return { meetingId: result.lastInsertRowid, meetingCode };
