@@ -7,3 +7,13 @@ export const createSession = (userId, refreshTokenHash, expiresAt) => {
   `);
   stmt.run(userId, refreshTokenHash, expiresAt);
 };
+
+export const findSessionByUserAndHash = (userId, tokenHash) => {
+  return db.prepare(`
+    SELECT * FROM sessions WHERE user_id = ? AND refresh_token_hash = ? AND expires_at > CURRENT_TIMESTAMP
+  `).get(userId, tokenHash);
+};
+
+export const deleteSessionByHash = (tokenHash) => {
+  return db.prepare(`DELETE FROM sessions WHERE refresh_token_hash = ?`).run(tokenHash).changes > 0;
+};
