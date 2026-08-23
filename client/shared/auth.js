@@ -16,6 +16,7 @@ export const initAuth = async () => {
     if (!res.ok) return false;
     const data = await res.json();
     setAccessToken(data.accessToken);
+    if (data.user) setCurrentUser(data.user);
     return true;
   } catch {
     return false;
