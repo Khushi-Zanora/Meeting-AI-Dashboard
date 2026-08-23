@@ -2,6 +2,7 @@ import { initAuth, getCurrentUser, clearAuth } from '../shared/auth.js';
 import { apiFetch } from '../shared/api.js';
 import { renderDashboard } from './views/dashboard.js';
 import { renderMeetings } from './views/meetings.js';
+import { renderNewMeeting } from './views/newMeeting.js';
 import { renderMeetingDetail } from './views/meetingDetail.js';
 import { renderTasks } from './views/tasks.js';
 import { renderNotes } from './views/notes.js';
@@ -12,6 +13,7 @@ const navLinks = document.querySelectorAll('.top-nav a');
 
 const routes = [
   { pattern: /^\/app\/dashboard$/, render: renderDashboard },
+  { pattern: /^\/app\/meetings\/new$/, render: renderNewMeeting },
   { pattern: /^\/app\/meetings$/, render: renderMeetings },
   { pattern: /^\/app\/meetings\/(\d+)$/, render: (el, match) => renderMeetingDetail(el, match[1]) },
   { pattern: /^\/app\/tasks$/, render: renderTasks },
