@@ -3,10 +3,12 @@ import { getAccessToken, setAccessToken } from './auth.js';
 const BASE = '/api';
 
 export const apiFetch = async (path, options = {}) => {
+  const isFormData = options.body instanceof FormData;
+
   const request = (token) => fetch(BASE + path, {
     ...options,
     headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(options.body && !isFormData ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers
     },
@@ -20,7 +22,7 @@ export const apiFetch = async (path, options = {}) => {
     if (refreshRes.ok) {
       const { accessToken } = await refreshRes.json();
       setAccessToken(accessToken);
-      res = await request(accessToken); // retry once with the fresh token
+      res = await request(accessToken);
     }
   }
 
