@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, '..', 'client')));
 
 // SPA fallback — any /app/* URL that isn't a real file gets the app shell,
 // so the router (Stage 10c) can read the URL and decide what to render
-app.get('/app/*', (req, res) => {
+app.get('/app/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'client', 'app', 'index.html'));
 });
 
