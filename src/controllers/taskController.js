@@ -2,8 +2,8 @@ import { getAllTasks, updateTaskStatus } from '../models/taskModel.js';
 import { TASK_STATUS } from '../constants.js';
 
 export const getTasks = (req, res) => {
-  const { status, priority } = req.query;
-  res.json(getAllTasks(req.user.id, { status, priority }));
+  const { status, priority, meetingId } = req.query;
+  res.json(getAllTasks(req.user.id, { status, priority, meetingId }));
 };
 
 export const updateTask = (req, res) => {
