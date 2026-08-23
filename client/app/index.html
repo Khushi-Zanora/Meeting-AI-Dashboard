@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeetingAI</title>
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/base.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <h1 class="logo">Meeting<span class="logo-accent">AI</span></h1>
+      <nav class="top-nav">
+        <a href="/app/dashboard" data-link>Dashboard</a>
+        <a href="/app/meetings" data-link>Meetings</a>
+        <a href="/app/tasks" data-link>Tasks</a>
+        <a href="/app/notes" data-link>Notes</a>
+      </nav>
+      <div class="user-area">
+        <span id="userName" class="user-name"></span>
+        <button id="logoutBtn" class="btn-logout">Log out</button>
+      </div>
+    </header>
+
+    <main id="viewContent" class="view-content"></main>
+  </div>
+
+  <script type="module" src="router.js"></script>
+</body>
+</html>
