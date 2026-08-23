@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { createUser, findUserByEmail } from '../models/userModel.js';
+import { createUser, findUserByEmail, findUserById } from '../models/userModel.js';
 import { createSession } from '../models/sessionModel.js';
 import { validateSignupInput, validateLoginInput } from '../validators/authValidators.js';
 import { generateAccessToken, generateRefreshToken, hashToken } from '../utils/tokenUtils.js';
@@ -100,7 +100,13 @@ export const refresh = (req, res) => {
     return res.status(401).json({ success: false, message: 'Session not recognized, please log in again' });
   }
 
-  return res.json({ success: true, accessToken: generateAccessToken(decoded.userId) });
+  const user = findUserById(decoded.userId);
+
+  return res.json({
+    success: true,
+    accessToken: generateAccessToken(decoded.userId),
+    user
+  });
 };
 
 export const logout = (req, res) => {
