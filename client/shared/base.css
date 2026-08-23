@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.field-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+
+.field-label { font-size: 0.82rem; font-weight: 500; color: var(--text-secondary); }
+
+.field-input {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  transition: border-color 0.15s ease;
+}
+.field-input:focus { border-color: var(--accent-blue); }
+
+.field-with-toggle { position: relative; display: flex; align-items: center; }
+.field-toggle-btn {
+  position: absolute;
+  right: 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent-blue);
+}
+
+.field-error { font-size: 0.78rem; color: var(--priority-high); min-height: 1.1em; }
+
+.btn-primary {
+  background: var(--navy-900);
+  color: var(--text-on-navy);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-link {
+  color: var(--accent-blue);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.form-status { font-size: 0.82rem; text-align: center; min-height: 1.2em; }
+.form-status.error { color: var(--priority-high); }
