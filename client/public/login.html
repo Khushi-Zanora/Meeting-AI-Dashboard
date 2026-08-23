@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Log in — MeetingAI</title>
+  <link rel="stylesheet" href="../shared/tokens.css" />
+  <link rel="stylesheet" href="../shared/base.css" />
+  <style>
+    .auth-shell { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .auth-card { width: 100%; max-width: 380px; }
+    .auth-card h1 { font-size: 1.3rem; margin-bottom: 4px; text-align: center; }
+    .auth-card .sub { font-size: 0.85rem; color: var(--text-secondary); text-align: center; margin-bottom: 24px; }
+    .auth-footer { text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+  <div class="auth-shell">
+    <div class="card auth-card">
+      <h1>Welcome back</h1>
+      <p class="sub">Log in to your MeetingAI account</p>
+
+      <form id="loginForm" novalidate>
+        <div class="field-group">
+          <label class="field-label" for="email">Email</label>
+          <input class="field-input" type="email" id="email" placeholder="you@company.com" required />
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="password">Password</label>
+          <div class="field-with-toggle">
+            <input class="field-input" type="password" id="password" placeholder="Enter your password" style="width:100%;padding-right:56px" required />
+            <button type="button" class="field-toggle-btn" id="togglePassword">Show</button>
+          </div>
+          <span class="field-error" id="passwordError"></span>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submitBtn">Log in</button>
+        <p class="form-status" id="formStatus"></p>
+      </form>
+
+      <p class="auth-footer">Don't have an account? <a class="btn-link" href="signup.html">Sign up</a></p>
+    </div>
+  </div>
+
+  <script type="module" src="login.js"></script>
+</body>
+</html>
