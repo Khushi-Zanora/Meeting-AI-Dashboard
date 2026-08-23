@@ -15,23 +15,16 @@ export const createTasksForMeeting = (userId, meetingId, tasks) => {
   insertMany(tasks);
 };
 
-export const getAllTasks = (userId, { status, priority } = {}) => {
+export const getAllTasks = (userId, { status, priority, meetingId } = {}) => {
   let query = 'SELECT * FROM tasks WHERE user_id = ?';
   const params = [userId];
 
-  if (status) {
-    query += ' AND status = ?';
-    params.push(status);
-  }
-  if (priority) {
-    query += ' AND priority = ?';
-    params.push(priority);
-  }
+  if (status) { query += ' AND status = ?'; params.push(status); }
+  if (priority) { query += ' AND priority = ?'; params.push(priority); }
+  if (meetingId) { query += ' AND meeting_id = ?'; params.push(meetingId); }
 
   query += ' ORDER BY created_at DESC';
-
-  const stmt = db.prepare(query);
-  return stmt.all(...params);
+  return db.prepare(query).all(...params);
 };
 
 export const updateTaskStatus = (id, userId, status) => {
