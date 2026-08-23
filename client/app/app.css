@@ -110,3 +110,27 @@
   border-radius: var(--radius-sm);
 }
 .btn-secondary:hover { background: var(--bg-page); }
+
+.meeting-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.meeting-title { font-size: 1.3rem; margin-bottom: 4px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 0; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+.bullet-list { padding-left: 18px; font-size: 0.85rem; color: var(--text-primary); line-height: 1.6; }
+.meeting-summary { font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); }
+
+.transcript-box { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; margin-top: 12px; max-height: 300px; overflow-y: auto; }
+
+.priority-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+.priority-high { background: var(--priority-high); }
+.priority-medium { background: var(--priority-medium); }
+.priority-low { background: var(--priority-low); }
+
+.task-row { display: flex; justify-content: space-between; align-items: center; }
+
+.note-content { font-size: 0.87rem; line-height: 1.5; margin-bottom: 8px; }
+.note-footer { display: flex; justify-content: space-between; align-items: center; }
+
+.column-count { background: var(--bg-page); font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; color: var(--text-secondary); }
+
