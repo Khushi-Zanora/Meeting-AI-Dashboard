@@ -134,3 +134,16 @@
 
 .column-count { background: var(--bg-page); font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; color: var(--text-secondary); }
 
+.filters-row { flex-wrap: wrap; }
+.select-input { max-width: 160px; padding: 9px 10px; }
+
+.pin-badge {
+  display: inline-block;
+  background: var(--accent-blue-bg);
+  color: var(--accent-blue-dark);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-bottom: 8px;
+}
