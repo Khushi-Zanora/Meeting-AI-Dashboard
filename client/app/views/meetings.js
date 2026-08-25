@@ -1,5 +1,5 @@
 import { apiFetch } from '../../shared/api.js';
-import { escapeHtml } from '../../shared/dom.js';
+import { escapeHtml, renderSkeleton, renderEmptyState } from '../../shared/dom.js';
 
 let currentSearch = '';
 let showArchived = false;
@@ -9,7 +9,7 @@ export const renderMeetings = async (el) => {
   el.innerHTML = `
     <div class="page-header">
       <h2 class="section-title">Meetings</h2>
-      <a href="/app/meetings/new" data-link><button class="btn-primary" style="width:auto;padding:10px 18px">+ New meeting</button></a>
+      <a href="/app/meetings/new" data-link><button class="btn-primary" style="width:auto;padding:10px 18px"><i class="ti ti-plus" aria-hidden="true"></i>New meeting</button></a>
     </div>
     <div class="toolbar">
       <input type="text" id="meetingSearch" class="field-input" placeholder="Search by title, code, or participant..." style="max-width:320px" />
@@ -37,7 +37,7 @@ export const renderMeetings = async (el) => {
 
 const loadMeetings = async (el) => {
   const listEl = el.querySelector('#meetingsList');
-  listEl.innerHTML = '<p class="loading-state">Loading...</p>';
+  listEl.innerHTML = renderSkeleton(4);
 
   try {
     const params = new URLSearchParams();
@@ -48,8 +48,10 @@ const loadMeetings = async (el) => {
     if (!res.ok) throw new Error('Failed to load meetings');
     const { meetings } = await res.json();
 
-    if (meetings.length === 0) {
-      listEl.innerHTML = `<p class="empty-state">${showArchived ? 'No archived meetings.' : 'No meetings yet. Create your first one to get started.'}</p>`;
+        if (meetings.length === 0) {
+      listEl.innerHTML = showArchived
+        ? renderEmptyState({ icon: 'ti-archive', title: 'No archived meetings' })
+        : renderEmptyState({ icon: 'ti-video-off', title: 'No meetings yet', subtitle: 'Create your first one to get started.', ctaLabel: '+ New meeting', ctaHref: '/app/meetings/new' });
       return;
     }
 
@@ -61,10 +63,10 @@ const loadMeetings = async (el) => {
         </div>
         <div class="meeting-actions">
           ${showArchived
-            ? `<button class="btn-text" data-action="restore" data-id="${m.id}">Restore</button>`
-            : `<button class="btn-text" data-action="archive" data-id="${m.id}">Archive</button>`
+            ? `<button class="btn-text" data-action="restore" data-id="${m.id}"><i class="ti ti-arrow-back-up" aria-hidden="true"></i>Restore</button>`
+            : `<button class="btn-text" data-action="archive" data-id="${m.id}"><i class="ti ti-archive" aria-hidden="true"></i>Archive</button>`
           }
-          <button class="btn-text btn-text-danger" data-action="delete" data-id="${m.id}">Delete</button>
+          <button class="btn-text btn-text-danger" data-action="delete" data-id="${m.id}"><i class="ti ti-trash" aria-hidden="true"></i>Delete</button>
         </div>
       </div>
     `).join('');
@@ -75,7 +77,7 @@ const loadMeetings = async (el) => {
 
   } catch (err) {
     console.error(err);
-    listEl.innerHTML = '<p class="empty-state">Could not load meetings.</p>';
+    listEl.innerHTML = renderEmptyState({ icon: 'ti-alert-triangle', title: 'Could not load meetings' });
   }
 };
 
