@@ -1,5 +1,5 @@
 import { apiFetch } from '../../shared/api.js';
-import { escapeHtml } from '../../shared/dom.js';
+import { escapeHtml, renderSkeleton, renderEmptyState } from '../../shared/dom.js';
 
 let filters = { status: '', priority: '', meetingId: '', search: '' };
 let meetingsMap = {};
@@ -7,7 +7,7 @@ let searchDebounce = null;
 let editingTaskId = null;
 
 export const renderTasks = async (el) => {
-  el.innerHTML = '<p class="loading-state">Loading...</p>';
+  el.innerHTML = renderSkeleton(4);
 
   try {
     const meetingsRes = await apiFetch('/meetings?archived=all');
@@ -51,13 +51,13 @@ export const renderTasks = async (el) => {
 
   } catch (err) {
     console.error(err);
-    el.innerHTML = '<p class="empty-state">Could not load tasks.</p>';
+    el.innerHTML = renderEmptyState({ icon: 'ti-alert-triangle', title: 'Could not load tasks' });
   }
 };
 
 const loadTasks = async (el) => {
   const listEl = el.querySelector('#taskList');
-  listEl.innerHTML = '<p class="loading-state">Loading...</p>';
+  listEl.innerHTML = renderSkeleton(4);
 
   const params = new URLSearchParams();
   if (filters.status) params.set('status', filters.status);
@@ -65,13 +65,13 @@ const loadTasks = async (el) => {
   if (filters.meetingId) params.set('meetingId', filters.meetingId);
   if (filters.search) params.set('search', filters.search);
 
-  const res = await apiFetch(`/tasks?${params.toString()}`);
-  if (!res.ok) { listEl.innerHTML = '<p class="empty-state">Could not load tasks.</p>'; return; }
+    const res = await apiFetch(`/tasks?${params.toString()}`);
+  if (!res.ok) { listEl.innerHTML = renderEmptyState({ icon: 'ti-alert-triangle', title: 'Could not load tasks' }); return; }
 
   const tasks = await res.json();
 
   if (tasks.length === 0) {
-    listEl.innerHTML = '<p class="empty-state">No tasks match these filters.</p>';
+    listEl.innerHTML = renderEmptyState({ icon: 'ti-checklist', title: 'No tasks match these filters' });
     return;
   }
 
@@ -94,8 +94,8 @@ const renderTaskRow = (t) => {
           </select>
         </div>
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn-primary save-task-btn" data-id="${t.id}" style="width:auto;padding:7px 14px">Save</button>
-          <button class="btn-secondary cancel-edit-btn">Cancel</button>
+            <button class="btn-primary save-task-btn" data-id="${t.id}" style="width:auto;padding:7px 14px"><i class="ti ti-check" aria-hidden="true"></i>Save</button>
+          <button class="btn-secondary cancel-edit-btn"><i class="ti ti-x" aria-hidden="true"></i>Cancel</button>
         </div>
       </div>
     `;
@@ -111,10 +111,10 @@ const renderTaskRow = (t) => {
           · ${t.assignee ? escapeHtml(t.assignee) : 'Unassigned'}${t.deadline ? ' · ' + escapeHtml(t.deadline) : ''}
         </div>
       </div>
-      <div class="meeting-actions">
-        <button class="btn-text edit-task-btn" data-id="${t.id}">Edit</button>
-        <button class="btn-text task-toggle" data-id="${t.id}" data-status="${t.status}">${t.status === 'pending' ? 'Mark done' : 'Reopen'}</button>
-        <button class="btn-text btn-text-danger delete-task-btn" data-id="${t.id}">Delete</button>
+        <div class="meeting-actions">
+        <button class="btn-text edit-task-btn" data-id="${t.id}"><i class="ti ti-edit" aria-hidden="true"></i>Edit</button>
+        <button class="btn-text task-toggle" data-id="${t.id}" data-status="${t.status}"><i class="ti ${t.status === 'pending' ? 'ti-circle-check' : 'ti-rotate'}" aria-hidden="true"></i>${t.status === 'pending' ? 'Mark done' : 'Reopen'}</button>
+        <button class="btn-text btn-text-danger delete-task-btn" data-id="${t.id}"><i class="ti ti-trash" aria-hidden="true"></i>Delete</button>
       </div>
     </div>
   `;
