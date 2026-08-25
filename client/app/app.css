@@ -147,3 +147,45 @@
   border-radius: 20px;
   margin-bottom: 8px;
 }
+
+/* Subtle hover lift — applies to every card-like element automatically */
+.list-card, .stat-card, .card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.list-card:hover, .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+.btn-primary, .btn-secondary, .btn-text { transition: transform 0.12s ease, opacity 0.12s ease, background 0.15s ease; }
+.btn-primary:active, .btn-secondary:active { transform: scale(0.97); }
+
+/* Skeleton loader — replaces plain "Loading..." text */
+.skeleton-row {
+  height: 58px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--bg-page) 25%, var(--border) 37%, var(--bg-page) 63%);
+  background-size: 400% 100%;
+  animation: skeleton-pulse 1.4s ease infinite;
+  margin-bottom: 10px;
+}
+@keyframes skeleton-pulse {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Empty state card — replaces plain <p class="empty-state"> */
+.empty-card { text-align: center; padding: 48px 24px; background: var(--bg-card); border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); }
+.empty-card .ti { font-size: 28px; color: var(--text-muted); margin-bottom: 12px; display: block; }
+.empty-card h3 { font-size: 0.95rem; margin-bottom: 4px; }
+.empty-card p { font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 16px; }
+
+/* Icon + label spacing inside buttons and nav */
+.top-nav a { display: inline-flex; align-items: center; gap: 6px; }
+.btn-primary, .btn-secondary, .btn-text { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Dashboard quick-create */
+.quick-create-card { margin-bottom: 28px; }
+.quick-create-card textarea { min-height: 90px; }
+.quick-create-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
