@@ -26,15 +26,15 @@ export const renderNewMeeting = (el) => {
       </div>
 
       <div class="tab-switch">
-        <button type="button" class="tab-btn active" id="tabAudio">Upload audio</button>
-        <button type="button" class="tab-btn" id="tabTranscript">Paste transcript</button>
+        <button type="button" class="tab-btn active" id="tabAudio"><i class="ti ti-microphone" aria-hidden="true"></i>Upload audio</button>
+        <button type="button" class="tab-btn" id="tabTranscript"><i class="ti ti-file-text" aria-hidden="true"></i>Paste transcript</button>
       </div>
 
       <div id="audioPane">
         <div class="dropzone" id="dropzone">
           <p class="dropzone-text" id="dropzoneText">Drop an audio file, or choose one below</p>
           <input type="file" id="audioInput" accept=".mp3,.wav" hidden />
-          <button type="button" class="btn-secondary" id="browseBtn">Choose audio file</button>
+            <button type="button" class="btn-secondary" id="browseBtn"><i class="ti ti-upload" aria-hidden="true"></i>Choose audio file</button>
         </div>
       </div>
 
@@ -44,7 +44,7 @@ export const renderNewMeeting = (el) => {
         </div>
       </div>
 
-      <button class="btn-primary" id="submitBtn" style="margin-top:8px">Process meeting</button>
+        <button class="btn-primary" id="submitBtn" style="margin-top:8px"><i class="ti ti-bolt" aria-hidden="true"></i>Process meeting</button>
       <p class="form-status" id="formStatus"></p>
     </div>
   `;
