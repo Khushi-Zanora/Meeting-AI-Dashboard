@@ -17,14 +17,12 @@ export const getNotesByMeeting = (meetingId, userId) => {
   `).all(meetingId, userId);
 };
 
-export const getAllNotesForUser = (userId, search) => {
+export const getAllNotesForUser = (userId, { search, meetingId } = {}) => {
   let query = 'SELECT * FROM notes WHERE user_id = ?';
   const params = [userId];
 
-  if (search) {
-    query += ' AND content LIKE ?';
-    params.push(`%${search}%`);
-  }
+  if (meetingId) { query += ' AND meeting_id = ?'; params.push(meetingId); }
+  if (search) { query += ' AND content LIKE ?'; params.push(`%${search}%`); }
 
   query += ' ORDER BY is_pinned DESC, created_at DESC';
   return db.prepare(query).all(...params);
