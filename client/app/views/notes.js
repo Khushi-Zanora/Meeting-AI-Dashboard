@@ -1,5 +1,5 @@
 import { apiFetch } from '../../shared/api.js';
-import { escapeHtml } from '../../shared/dom.js';
+import { escapeHtml, renderSkeleton, renderEmptyState } from '../../shared/dom.js';
 
 let filters = { search: '', meetingId: '' };
 let meetingsMap = {};
@@ -7,7 +7,7 @@ let searchDebounce = null;
 let editingNoteId = null;
 
 export const renderNotes = async (el) => {
-  el.innerHTML = '<p class="loading-state">Loading...</p>';
+  el.innerHTML = renderSkeleton(4);
 
   try {
     const meetingsRes = await apiFetch('/meetings?archived=all');
@@ -41,25 +41,25 @@ export const renderNotes = async (el) => {
 
   } catch (err) {
     console.error(err);
-    el.innerHTML = '<p class="empty-state">Could not load notes.</p>';
+    el.innerHTML = renderEmptyState({ icon: 'ti-alert-triangle', title: 'Could not load notes' });
   }
 };
 
 const loadNotes = async (el) => {
   const listEl = el.querySelector('#notesList');
-  listEl.innerHTML = '<p class="loading-state">Loading...</p>';
+  listEl.innerHTML = renderSkeleton(4);
 
   const params = new URLSearchParams();
   if (filters.search) params.set('search', filters.search);
   if (filters.meetingId) params.set('meetingId', filters.meetingId);
 
-  const res = await apiFetch(`/notes?${params.toString()}`);
-  if (!res.ok) { listEl.innerHTML = '<p class="empty-state">Could not load notes.</p>'; return; }
+    const res = await apiFetch(`/notes?${params.toString()}`);
+  if (!res.ok) { listEl.innerHTML = renderEmptyState({ icon: 'ti-alert-triangle', title: 'Could not load notes' }); return; }
 
   const { notes } = await res.json();
 
   if (notes.length === 0) {
-    listEl.innerHTML = '<p class="empty-state">No notes match these filters.</p>';
+    listEl.innerHTML = renderEmptyState({ icon: 'ti-notes-off', title: 'No notes match these filters' });
     return;
   }
 
@@ -73,8 +73,8 @@ const renderNoteCard = (n) => {
       <div class="list-card" data-id="${n.id}">
         <textarea class="field-input edit-content" style="min-height:70px">${escapeHtml(n.content)}</textarea>
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn-primary save-note-btn" data-id="${n.id}" style="width:auto;padding:7px 14px">Save</button>
-          <button class="btn-secondary cancel-edit-btn">Cancel</button>
+                    <button class="btn-primary save-note-btn" data-id="${n.id}" style="width:auto;padding:7px 14px"><i class="ti ti-check" aria-hidden="true"></i>Save</button>
+          <button class="btn-secondary cancel-edit-btn"><i class="ti ti-x" aria-hidden="true"></i>Cancel</button>
         </div>
       </div>
     `;
@@ -82,7 +82,7 @@ const renderNoteCard = (n) => {
 
   return `
     <div class="list-card note-row" data-id="${n.id}">
-      ${n.is_pinned ? '<span class="pin-badge">Pinned</span>' : ''}
+    ${n.is_pinned ? '<span class="pin-badge"><i class="ti ti-pin" aria-hidden="true"></i> Pinned</span>' : ''}
       <p class="note-content">${escapeHtml(n.content)}</p>
       <div class="note-footer">
         <span class="list-card-meta">
@@ -90,9 +90,9 @@ const renderNoteCard = (n) => {
           · ${new Date(n.created_at).toLocaleDateString()}
         </span>
         <div class="meeting-actions">
-          <button class="btn-text pin-btn" data-id="${n.id}" data-pinned="${n.is_pinned}">${n.is_pinned ? 'Unpin' : 'Pin'}</button>
-          <button class="btn-text edit-note-btn" data-id="${n.id}">Edit</button>
-          <button class="btn-text btn-text-danger delete-note-btn" data-id="${n.id}">Delete</button>
+          <button class="btn-text pin-btn" data-id="${n.id}" data-pinned="${n.is_pinned}"><i class="ti ti-pin" aria-hidden="true"></i>${n.is_pinned ? 'Unpin' : 'Pin'}</button>
+          <button class="btn-text edit-note-btn" data-id="${n.id}"><i class="ti ti-edit" aria-hidden="true"></i>Edit</button>
+          <button class="btn-text btn-text-danger delete-note-btn" data-id="${n.id}"><i class="ti ti-trash" aria-hidden="true"></i>Delete</button>
         </div>
       </div>
     </div>
