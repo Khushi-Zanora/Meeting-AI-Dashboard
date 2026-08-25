@@ -2,8 +2,8 @@ import { createNote, getNotesByMeeting, getAllNotesForUser, updateNote, deleteNo
 import { getMeetingById } from '../models/meetingModel.js';
 
 export const listAllNotes = (req, res) => {
-  const { search } = req.query;
-  const notes = getAllNotesForUser(req.user.id, search);
+  const { search, meetingId } = req.query;
+  const notes = getAllNotesForUser(req.user.id, { search, meetingId });
   res.json({ success: true, notes });
 };
 
