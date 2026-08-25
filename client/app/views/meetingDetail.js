@@ -1,9 +1,9 @@
 import { apiFetch } from '../../shared/api.js';
-import { escapeHtml } from '../../shared/dom.js';
+import { escapeHtml, renderSkeleton, renderEmptyState } from '../../shared/dom.js';
 import { navigate } from '../router.js';
 
 export const renderMeetingDetail = async (el, meetingId) => {
-  el.innerHTML = '<p class="loading-state">Loading...</p>';
+  el.innerHTML = renderSkeleton(3);
 
   try {
     const [meetingRes, notesRes, tasksRes] = await Promise.all([
@@ -12,8 +12,8 @@ export const renderMeetingDetail = async (el, meetingId) => {
       apiFetch(`/tasks?meetingId=${meetingId}`)
     ]);
 
-    if (meetingRes.status === 404) {
-      el.innerHTML = '<p class="empty-state">Meeting not found.</p>';
+        if (meetingRes.status === 404) {
+      el.innerHTML = renderEmptyState({ icon: 'ti-video-off', title: 'Meeting not found' });
       return;
     }
     if (!meetingRes.ok || !notesRes.ok || !tasksRes.ok) throw new Error('Failed to load meeting');
@@ -24,25 +24,25 @@ export const renderMeetingDetail = async (el, meetingId) => {
 
     renderView(el, meeting, notes, tasks);
 
-  } catch (err) {
+    } catch (err) {
     console.error(err);
-    el.innerHTML = '<p class="empty-state">Could not load this meeting.</p>';
+    el.innerHTML = renderEmptyState({ icon: 'ti-alert-triangle', title: 'Could not load this meeting' });
   }
 };
 
 const renderView = (el, meeting, notes, tasks) => {
   el.innerHTML = `
-    <a href="/app/meetings" data-link class="btn-text" style="display:inline-block;margin-bottom:12px">← Back to meetings</a>
+        <a href="/app/meetings" data-link class="btn-text" style="display:inline-block;margin-bottom:12px"><i class="ti ti-arrow-left" aria-hidden="true"></i>Back to meetings</a>
 
     <div class="meeting-header">
       <div>
         <h2 id="titleDisplay" class="meeting-title">${escapeHtml(meeting.title || meeting.meeting_code)}</h2>
         <div class="list-card-meta">${meeting.meeting_code} · ${new Date(meeting.date).toLocaleDateString()}${meeting.participants ? ' · ' + escapeHtml(meeting.participants) : ''}</div>
       </div>
-      <div class="meeting-actions">
-        <button class="btn-text" id="editBtn">Edit</button>
-        <button class="btn-text" id="archiveBtn">${meeting.archived_at ? 'Restore' : 'Archive'}</button>
-        <button class="btn-text btn-text-danger" id="deleteBtn">Delete</button>
+        <div class="meeting-actions">
+        <button class="btn-text" id="editBtn"><i class="ti ti-edit" aria-hidden="true"></i>Edit</button>
+        <button class="btn-text" id="archiveBtn"><i class="ti ${meeting.archived_at ? 'ti-arrow-back-up' : 'ti-archive'}" aria-hidden="true"></i>${meeting.archived_at ? 'Restore' : 'Archive'}</button>
+        <button class="btn-text btn-text-danger" id="deleteBtn"><i class="ti ti-trash" aria-hidden="true"></i>Delete</button>
       </div>
     </div>
 
@@ -54,8 +54,8 @@ const renderView = (el, meeting, notes, tasks) => {
       </div>
       <div class="field-group"><label class="field-label">Description</label><textarea class="field-input" id="editDescription">${escapeHtml(meeting.description || '')}</textarea></div>
       <div style="display:flex;gap:8px">
-        <button class="btn-primary" id="saveEditBtn" style="width:auto;padding:9px 18px">Save</button>
-        <button class="btn-secondary" id="cancelEditBtn">Cancel</button>
+        <button class="btn-primary" id="saveEditBtn" style="width:auto;padding:9px 18px"><i class="ti ti-check" aria-hidden="true"></i>Save</button>
+        <button class="btn-secondary" id="cancelEditBtn"><i class="ti ti-x" aria-hidden="true"></i>Cancel</button>
       </div>
     </div>
 
@@ -91,7 +91,7 @@ const renderView = (el, meeting, notes, tasks) => {
       <h3 class="section-title">Notes <span class="column-count">${notes.length}</span></h3>
       <div class="field-group">
         <textarea class="field-input" id="newNoteInput" placeholder="Add a note..." style="min-height:70px"></textarea>
-        <button class="btn-primary" id="addNoteBtn" style="width:auto;padding:9px 18px;margin-top:6px">Add note</button>
+        <button class="btn-primary" id="addNoteBtn" style="width:auto;padding:9px 18px;margin-top:6px"><i class="ti ti-plus" aria-hidden="true"></i>Add note</button>
       </div>
       <div id="notesList">${renderNotes(notes)}</div>
     </section>
@@ -106,7 +106,7 @@ const renderBulletList = (items) => {
 };
 
 const renderTasks = (tasks) => {
-  if (tasks.length === 0) return '<p class="empty-state">No action items for this meeting.</p>';
+  if (tasks.length === 0) return renderEmptyState({ icon: 'ti-checklist', title: 'No action items for this meeting' });
   return tasks.map((t) => `
     <div class="list-card task-row">
       <div>
@@ -114,21 +114,21 @@ const renderTasks = (tasks) => {
         <span class="list-card-title">${escapeHtml(t.title)}</span>
         <div class="list-card-meta">${t.assignee ? escapeHtml(t.assignee) : 'Unassigned'}${t.deadline ? ' · ' + escapeHtml(t.deadline) : ''}</div>
       </div>
-      <button class="btn-text task-toggle" data-id="${t.id}" data-status="${t.status}">${t.status === 'pending' ? 'Mark done' : 'Reopen'}</button>
+    <button class="btn-text task-toggle" data-id="${t.id}" data-status="${t.status}"><i class="ti ${t.status === 'pending' ? 'ti-circle-check' : 'ti-rotate'}" aria-hidden="true"></i>${t.status === 'pending' ? 'Mark done' : 'Reopen'}</button>
     </div>
   `).join('');
 };
 
 const renderNotes = (notes) => {
-  if (notes.length === 0) return '<p class="empty-state">No notes yet.</p>';
+  if (notes.length === 0) return renderEmptyState({ icon: 'ti-notes-off', title: 'No notes yet' });
   return notes.map((n) => `
     <div class="list-card note-row" data-id="${n.id}">
       <p class="note-content">${escapeHtml(n.content)}</p>
       <div class="note-footer">
         <span class="list-card-meta">${new Date(n.created_at).toLocaleDateString()}</span>
         <div class="meeting-actions">
-          <button class="btn-text pin-btn" data-id="${n.id}" data-pinned="${n.is_pinned}">${n.is_pinned ? 'Unpin' : 'Pin'}</button>
-          <button class="btn-text btn-text-danger delete-note-btn" data-id="${n.id}">Delete</button>
+          <button class="btn-text pin-btn" data-id="${n.id}" data-pinned="${n.is_pinned}"><i class="ti ti-pin" aria-hidden="true"></i>${n.is_pinned ? 'Unpin' : 'Pin'}</button>
+          <button class="btn-text btn-text-danger delete-note-btn" data-id="${n.id}"><i class="ti ti-trash" aria-hidden="true"></i>Delete</button>
         </div>
       </div>
     </div>
