@@ -78,9 +78,9 @@ export const renderDashboard = async (el) => {
     el.innerHTML = `
       <h2 class="section-title">Dashboard</h2>
 
-      <div class="card quick-create-card">
+        <div class="card quick-create-card" style="width: 70vw; height: 35vh">
         <h3 class="section-title" style="margin-bottom:10px"><i class="ti ti-sparkles" aria-hidden="true"></i> Quick create</h3>
-        <textarea class="field-input" id="quickTranscript" placeholder="Paste a transcript to process it right now..."></textarea>
+        <textarea class="field-input" id="quickTranscript" placeholder="Paste a transcript to process it right now..." style="width: 50vw; height:16vh"></textarea>
         <div class="quick-create-footer">
           <a href="/app/meetings/new" data-link class="btn-text"><i class="ti ti-microphone" aria-hidden="true"></i>Upload audio instead</a>
           <button class="btn-primary" id="quickSubmitBtn" style="width:auto;padding:9px 18px"><i class="ti ti-bolt" aria-hidden="true"></i>Process meeting</button>
