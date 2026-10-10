@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+﻿import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -8,7 +8,6 @@ const __dirname = path.dirname(__filename);
 const dbPath = path.join(__dirname, '..', '..', 'meetings.db');
 const db = new Database(dbPath);
 
-// Foreign keys are OFF by default in SQLite — must enable explicitly per connection
 db.pragma('foreign_keys = ON');
 
 db.exec(`
@@ -81,11 +80,36 @@ db.exec(`
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS meeting_collaborators (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    meeting_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    invited_by INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (meeting_id) REFERENCES meetings(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(meeting_id, user_id)
+  );
+
   CREATE INDEX IF NOT EXISTS idx_meetings_user ON meetings(user_id);
   CREATE INDEX IF NOT EXISTS idx_tasks_user ON tasks(user_id);
   CREATE INDEX IF NOT EXISTS idx_tasks_meeting ON tasks(meeting_id);
   CREATE INDEX IF NOT EXISTS idx_notes_meeting ON notes(meeting_id);
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+  CREATE INDEX IF NOT EXISTS idx_collaborators_meeting ON meeting_collaborators(meeting_id);
+  CREATE INDEX IF NOT EXISTS idx_collaborators_user ON meeting_collaborators(user_id);
 `);
+
+const addColumnIfMissing = (table, column, definition) => {
+  try {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  } catch (err) {
+    if (!err.message.includes('duplicate column name')) throw err;
+  }
+};
+
+addColumnIfMissing('meetings', 'is_vaulted', 'INTEGER DEFAULT 0');
+addColumnIfMissing('meetings', 'vault_pin_hash', 'TEXT');
 
 export default db;

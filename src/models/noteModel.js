@@ -1,5 +1,6 @@
-import db from '../config/db.js';
+﻿import db from '../config/db.js';
 
+// userId here is the AUTHOR of the note
 export const createNote = (userId, meetingId, content) => {
   const stmt = db.prepare(`
     INSERT INTO notes (user_id, meeting_id, content)
@@ -9,26 +10,45 @@ export const createNote = (userId, meetingId, content) => {
   return result.lastInsertRowid;
 };
 
-export const getNotesByMeeting = (meetingId, userId) => {
-  return db.prepare(`
-    SELECT * FROM notes
-    WHERE meeting_id = ? AND user_id = ?
-    ORDER BY is_pinned DESC, created_at DESC
-  `).all(meetingId, userId);
-};
+// Notes inside ONE meeting, from every author. The caller must already have verified access.
+export const getNotesByMeeting = (meetingId, { search } = {}) => {
+  let query = `
+    SELECT n.*, u.name AS author_name
+    FROM notes n
+    JOIN users u ON u.id = n.user_id
+    WHERE n.meeting_id = ?
+  `;
+  const params = [meetingId];
 
-export const getAllNotesForUser = (userId, { search, meetingId } = {}) => {
-  let query = 'SELECT * FROM notes WHERE user_id = ?';
-  const params = [userId];
+  if (search) { query += ' AND n.content LIKE ?'; params.push('%' + search + '%'); }
 
-  if (meetingId) { query += ' AND meeting_id = ?'; params.push(meetingId); }
-  if (search) { query += ' AND content LIKE ?'; params.push(`%${search}%`); }
-
-  query += ' ORDER BY is_pinned DESC, created_at DESC';
+  query += ' ORDER BY n.is_pinned DESC, n.created_at DESC';
   return db.prepare(query).all(...params);
 };
 
-export const updateNote = (id, userId, { content, isPinned }) => {
+// Global list: notes (any author) in meetings I own, vaulted ones excluded
+export const getAllNotesForUser = (userId, { search } = {}) => {
+  let query = `
+    SELECT n.*, u.name AS author_name
+    FROM notes n
+    JOIN users u ON u.id = n.user_id
+    JOIN meetings m ON m.id = n.meeting_id
+    WHERE m.user_id = ? AND COALESCE(m.is_vaulted, 0) = 0
+  `;
+  const params = [userId];
+
+  if (search) { query += ' AND n.content LIKE ?'; params.push('%' + search + '%'); }
+
+  query += ' ORDER BY n.is_pinned DESC, n.created_at DESC';
+  return db.prepare(query).all(...params);
+};
+
+// Author and meeting of a note, so the controller can check both
+export const getNoteContext = (id) => {
+  return db.prepare('SELECT id, meeting_id, user_id FROM notes WHERE id = ?').get(id);
+};
+
+export const updateNote = (id, meetingId, { content, isPinned }) => {
   const updates = [];
   const params = [];
 
@@ -44,12 +64,12 @@ export const updateNote = (id, userId, { content, isPinned }) => {
   if (updates.length === 0) return false;
 
   updates.push('updated_at = CURRENT_TIMESTAMP');
-  params.push(id, userId);
+  params.push(id, meetingId);
 
-  const stmt = db.prepare(`UPDATE notes SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`);
+  const stmt = db.prepare('UPDATE notes SET ' + updates.join(', ') + ' WHERE id = ? AND meeting_id = ?');
   return stmt.run(...params).changes > 0;
 };
 
-export const deleteNote = (id, userId) => {
-  return db.prepare(`DELETE FROM notes WHERE id = ? AND user_id = ?`).run(id, userId).changes > 0;
+export const deleteNote = (id, meetingId) => {
+  return db.prepare('DELETE FROM notes WHERE id = ? AND meeting_id = ?').run(id, meetingId).changes > 0;
 };

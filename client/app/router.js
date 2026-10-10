@@ -1,9 +1,11 @@
-import { initAuth, getCurrentUser, clearAuth } from '../shared/auth.js';
+﻿import { initAuth, getCurrentUser, clearAuth } from '../shared/auth.js';
 import { apiFetch } from '../shared/api.js';
+import { clearAllVaultTokens } from '../shared/vault.js';
 import { renderDashboard } from './views/dashboard.js';
 import { renderMeetings } from './views/meetings.js';
-import { renderNewMeeting } from './views/newMeeting.js';
 import { renderMeetingDetail } from './views/meetingDetail.js';
+import { renderNewMeeting } from './views/newMeeting.js';
+import { renderShared } from './views/shared.js';
 import { renderTasks } from './views/tasks.js';
 import { renderNotes } from './views/notes.js';
 
@@ -16,6 +18,7 @@ const routes = [
   { pattern: /^\/app\/meetings\/new$/, render: renderNewMeeting },
   { pattern: /^\/app\/meetings$/, render: renderMeetings },
   { pattern: /^\/app\/meetings\/(\d+)$/, render: (el, match) => renderMeetingDetail(el, match[1]) },
+  { pattern: /^\/app\/shared$/, render: renderShared },
   { pattern: /^\/app\/tasks$/, render: renderTasks },
   { pattern: /^\/app\/notes$/, render: renderNotes }
 ];
@@ -50,7 +53,7 @@ export const navigate = (path) => {
   renderCurrentRoute();
 };
 
-// Intercept clicks on internal nav links so navigation doesn't trigger a full reload
+// Intercept clicks on internal links so navigation does not trigger a full page reload
 document.addEventListener('click', (e) => {
   const link = e.target.closest('[data-link]');
   if (!link) return;
@@ -58,12 +61,12 @@ document.addEventListener('click', (e) => {
   navigate(link.getAttribute('href'));
 });
 
-// Handle the browser's own back/forward buttons
 window.addEventListener('popstate', renderCurrentRoute);
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await apiFetch('/auth/logout', { method: 'POST' });
   clearAuth();
+  clearAllVaultTokens();
   window.location.href = '/public/landing.html';
 });
 

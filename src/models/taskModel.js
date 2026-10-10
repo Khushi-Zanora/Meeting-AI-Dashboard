@@ -1,4 +1,4 @@
-import db from '../config/db.js';
+﻿import db from '../config/db.js';
 
 export const createTasksForMeeting = (userId, meetingId, tasks) => {
   const insert = db.prepare(`
@@ -15,33 +15,49 @@ export const createTasksForMeeting = (userId, meetingId, tasks) => {
   insertMany(tasks);
 };
 
-export const getAllTasks = (userId, { status, priority, meetingId, search } = {}) => {
-  let query = 'SELECT * FROM tasks WHERE user_id = ?';
+// Global list: tasks from meetings I own, vaulted ones excluded
+export const getAllTasks = (userId, { status, priority, search } = {}) => {
+  let query = 'SELECT * FROM tasks WHERE user_id = ? AND meeting_id NOT IN (SELECT id FROM meetings WHERE is_vaulted = 1)';
   const params = [userId];
 
   if (status) { query += ' AND status = ?'; params.push(status); }
   if (priority) { query += ' AND priority = ?'; params.push(priority); }
-  if (meetingId) { query += ' AND meeting_id = ?'; params.push(meetingId); }
-  if (search) { query += ' AND title LIKE ?'; params.push(`%${search}%`); }
+  if (search) { query += ' AND title LIKE ?'; params.push('%' + search + '%'); }
 
   query += ' ORDER BY created_at DESC';
   return db.prepare(query).all(...params);
 };
 
-export const updateTask = (id, userId, fields) => {
+// Tasks inside ONE meeting. The caller must already have verified access.
+export const getTasksByMeeting = (meetingId, { status, priority, search } = {}) => {
+  let query = 'SELECT * FROM tasks WHERE meeting_id = ?';
+  const params = [meetingId];
+
+  if (status) { query += ' AND status = ?'; params.push(status); }
+  if (priority) { query += ' AND priority = ?'; params.push(priority); }
+  if (search) { query += ' AND title LIKE ?'; params.push('%' + search + '%'); }
+
+  query += ' ORDER BY created_at DESC';
+  return db.prepare(query).all(...params);
+};
+
+// Just enough to find which meeting a task belongs to, so the controller can check access to it
+export const getTaskContext = (id) => {
+  return db.prepare('SELECT id, meeting_id FROM tasks WHERE id = ?').get(id);
+};
+
+export const updateTask = (id, meetingId, fields) => {
   const allowed = ['title', 'description', 'assignee', 'deadline', 'priority', 'status'];
   const updates = [];
   const params = [];
 
   for (const key of allowed) {
     if (fields[key] !== undefined) {
-      updates.push(`${key} = ?`);
+      updates.push(key + ' = ?');
       params.push(fields[key]);
     }
   }
 
-  // completed_at tracks status changes specifically, so it's handled separately
-  // from the generic loop above rather than being a directly-settable field
   if (fields.status !== undefined) {
     updates.push('completed_at = ?');
     params.push(fields.status === 'done' ? new Date().toISOString() : null);
@@ -50,12 +66,12 @@ export const updateTask = (id, userId, fields) => {
   if (updates.length === 0) return false;
 
   updates.push('updated_at = CURRENT_TIMESTAMP');
-  params.push(id, userId);
+  params.push(id, meetingId);
 
-  const stmt = db.prepare(`UPDATE tasks SET ${updates.join(', ')} WHERE id = ? AND user_id = ?`);
+  const stmt = db.prepare('UPDATE tasks SET ' + updates.join(', ') + ' WHERE id = ? AND meeting_id = ?');
   return stmt.run(...params).changes > 0;
 };
 
-export const deleteTask = (id, userId) => {
-  return db.prepare(`DELETE FROM tasks WHERE id = ? AND user_id = ?`).run(id, userId).changes > 0;
+export const deleteTask = (id, meetingId) => {
+  return db.prepare('DELETE FROM tasks WHERE id = ? AND meeting_id = ?').run(id, meetingId).changes > 0;
 };

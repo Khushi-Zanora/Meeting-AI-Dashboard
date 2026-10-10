@@ -1,24 +1,25 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MeetingAI</title>
-  <link rel="stylesheet" href="../shared/tokens.css" />
-  <link rel="stylesheet" href="../shared/base.css" />
-  <link rel="stylesheet" href="app.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <link rel="stylesheet" href="/shared/tokens.css" />
+  <link rel="stylesheet" href="/shared/base.css" />
+  <link rel="stylesheet" href="/app/app.css" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
       <h1 class="logo">Meeting<span class="logo-accent">AI</span></h1>
       <nav class="top-nav">
-  <a href="/app/dashboard" data-link><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard</a>
-  <a href="/app/meetings" data-link><i class="ti ti-video" aria-hidden="true"></i>Meetings</a>
-  <a href="/app/tasks" data-link><i class="ti ti-checklist" aria-hidden="true"></i>Tasks</a>
-  <a href="/app/notes" data-link><i class="ti ti-notes" aria-hidden="true"></i>Notes</a>
-</nav>
+        <a href="/app/dashboard" data-link><i class="ti ti-layout-dashboard" aria-hidden="true"></i>Dashboard</a>
+        <a href="/app/meetings" data-link><i class="ti ti-video" aria-hidden="true"></i>Meetings</a>
+        <a href="/app/shared" data-link><i class="ti ti-users" aria-hidden="true"></i>Shared</a>
+        <a href="/app/tasks" data-link><i class="ti ti-checklist" aria-hidden="true"></i>Tasks</a>
+        <a href="/app/notes" data-link><i class="ti ti-notes" aria-hidden="true"></i>Notes</a>
+      </nav>
       <div class="user-area">
         <span id="userName" class="user-name"></span>
         <button id="logoutBtn" class="btn-logout"><i class="ti ti-logout" aria-hidden="true"></i>Log out</button>
@@ -28,6 +29,6 @@
     <main id="viewContent" class="view-content"></main>
   </div>
 
-  <script type="module" src="router.js"></script>
+  <script type="module" src="/app/router.js"></script>
 </body>
 </html>
