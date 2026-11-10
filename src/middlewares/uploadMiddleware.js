@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url); //uploaded file path
 const __dirname = path.dirname(__filename); //path of folder in which file is uploaded
@@ -8,7 +9,9 @@ const __dirname = path.dirname(__filename); //path of folder in which file is up
 // Where uploaded audio files get saved temporarily
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '..', 'uploads')); //dirname thi '..' aa use karine ek folder pachad jai then uploads ma jai
+  const uploadDir = '/data/uploads';
+  fs.mkdirSync(uploadDir, { recursive: true });
+  cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     // e.g. 1691234567890-recording.mp3 — timestamp avoids filename collisions
